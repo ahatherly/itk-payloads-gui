@@ -1,14 +1,73 @@
 <!doctype html>
-<html ng-app>
+<html ng-app="PayloadObject">
   <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+    <!-- <script src="js/jquery-1.12.3.min.js"></script> -->
+    <script src="js/payloadobject.js"></script>
+    <script src="js/foundation/jquery.js"></script>
+    <script src="js/jqueryui/jquery-ui.min.js"></script>
+    <script src="js/foundation/foundation.min.js"></script>
+    <link rel="stylesheet" href="js/jqueryui/jquery-ui.min.css" />
+    <link rel="stylesheet" href="css/foundation.css" />
+    <link rel="stylesheet" href="css/main.css" />
   </head>
   <body>
-    <div>
-      <label>Name:</label>
-      <input type="text" ng-model="yourName" placeholder="Enter a name here">
-      <hr>
-      <h1>Hello {{yourName}}!</h1>
+    <div ng-controller="PayloadCtrl as json">
+	    <div class="top-bar">
+		  <div class="top-bar-left">
+		    <ul class="dropdown menu" data-dropdown-menu>
+		      <li class="menu-text">Interactive CDA Document Builder</li>
+		      <li>
+		        <a href="#">Change document type</a>
+		        <ul class="menu vertical">
+				  <li><a href="#">Transfer of Care</a></li>
+		          <li><a href="#">Non-Coded CDA</a></li>
+		          <li><a href="#">Child Screening</a></li>
+		        </ul>
+		      </li>
+		    </ul>
+		  </div>
+		</div>
+	    
+	    <div class="row" id="breadcrumbs">
+		  <div class="large-12 columns">
+			<nav aria-label="You are here:" role="navigation">
+			  <ul class="breadcrumbs">
+			    <li>{{packg}}</li>
+			    <li>{{name}}</li>
+			  </ul>
+			</nav>
+		  </div>
+		</div>
+		
+		<div class="row">
+		  <div class="large-6 columns">
+		    <form>
+				<div class="row" ng-repeat="field in fields">
+				  <div class="large-12 columns">
+					<label>
+						<a title="{{field.description}}">{{field.name}}</a>
+					    <input type="text" placeholder="{{field.type}}"
+					    		ng-model="field.value">
+				    </label>
+				  </div>
+				</div>
+			</form>
+		  </div>
+		  <div class="large-6 columns">
+		    <div>
+		    	<a class="button" ng-click="generateCDA()">Generate CDA</a> <a class="button" href="#">Generate Rendered Document</a>
+		    </div>
+			<textarea id="cda" ng-model="cda"></textarea>
+		  </div>
+		</div>
     </div>
+    
+    <script>
+      $(document).foundation();
+      $( document ).tooltip();
+    </script>
   </body>
 </html>

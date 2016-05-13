@@ -14,7 +14,11 @@ import javax.servlet.http.HttpSession;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import uk.nhs.interoperability.payloads.commontypes.PersonName;
+import uk.nhs.interoperability.payloads.gui.model.PayloadObject;
 import uk.nhs.interoperability.payloads.metadata.Field;
+import uk.nhs.interoperability.payloads.templates.Author;
+import uk.nhs.interoperability.payloads.templates.AuthorPersonUniversal;
 import uk.nhs.interoperability.payloads.toc_edischarge_draftB.ClinicalDocument;
 
 public class PayloadObjectServlet extends HttpServlet {
@@ -25,19 +29,25 @@ public class PayloadObjectServlet extends HttpServlet {
 		
 		Gson gson = new GsonBuilder().create();
 		
+		PayloadObject payload;
 		ClinicalDocument doc;
 		
 		HttpSession session = request.getSession(true);
-		if (session.getAttribute("ClinicalDocument") == null) {
-			doc = new ClinicalDocument();
+		if (session.getAttribute("PayloadObject") == null) {
+			payload = new PayloadObject(new ClinicalDocument());
 		} else {
-			doc = (ClinicalDocument)session.getAttribute("ClinicalDocument");
+			payload = (PayloadObject)session.getAttribute("PayloadObject");
 		}
 		
+		doc = ((ClinicalDocument)payload.getPayload());
 		
-		Map<String, Field> fields = doc.getFieldDefinitions();
+		doc.setDocumentId("1234");
+		doc.setDocumentVersionNumber("1");
+		AuthorPersonUniversal author = new AuthorPersonUniversal();
+		author.setName(new PersonName("Mr", "Adam", "Hatherly"));
+		doc.setAuthor(author);
 		
 		PrintWriter out = response.getWriter();
-		gson.toJson(fields.values(), out);
-		}
+		gson.toJson(payload, out);
+	}
 }
