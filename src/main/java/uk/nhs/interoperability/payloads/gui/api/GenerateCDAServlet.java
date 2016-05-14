@@ -16,6 +16,7 @@ import com.google.gson.GsonBuilder;
 import uk.nhs.interoperability.payloads.Payload;
 import uk.nhs.interoperability.payloads.gui.model.DummyPayload;
 import uk.nhs.interoperability.payloads.gui.model.PayloadObjectDeserialiser;
+import uk.nhs.interoperability.payloads.util.xml.PayloadSerialiser;
 import uk.nhs.interoperability.payloads.util.xml.XMLNamespaceContext;
 
 public class GenerateCDAServlet extends HttpServlet {
@@ -46,10 +47,31 @@ public class GenerateCDAServlet extends HttpServlet {
 		    System.out.println(jb.toString());*/
 		} catch (Exception e) { e.printStackTrace(); }
 		
-		//DummyPayload dummy = (DummyPayload)payload;
+		XMLNamespaceContext namespaces;
+		String rootNodeName;
+		
+		//if (payload.getNamespaceContext() == null) {
+			namespaces = parentNamespaces;
+		//} else {
+			//namespaces = payload.getNamespaceContext();
+		//}
+		
+		if (payload.getRootNode() == null) {
+			rootNodeName = "ClinicalDocument";
+		} else {
+			rootNodeName = payload.getRootNode();
+			if (rootNodeName.length() == 0) {
+				rootNodeName = "ClinicalDocument";
+			} else if (rootNodeName.startsWith("x:")) {
+				rootNodeName = rootNodeName.substring(2);
+			}
+		}
+		
+		System.out.println("Root node name: " + rootNodeName);
+		System.out.println("Namespaces: " + namespaces.toString());
 		
 		PrintWriter out = response.getWriter();
-		out.append(payload.serialise());
+		out.append(PayloadSerialiser.serialise(payload, rootNodeName, namespaces));
 		//out.append("Done");
 	}
 }
