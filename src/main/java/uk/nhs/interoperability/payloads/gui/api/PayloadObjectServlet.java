@@ -3,7 +3,6 @@ package uk.nhs.interoperability.payloads.gui.api;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,12 +13,11 @@ import javax.servlet.http.HttpSession;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import uk.nhs.interoperability.payloads.commontypes.PersonName;
-import uk.nhs.interoperability.payloads.gui.model.PayloadObject;
-import uk.nhs.interoperability.payloads.metadata.Field;
-import uk.nhs.interoperability.payloads.templates.Author;
-import uk.nhs.interoperability.payloads.templates.AuthorPersonUniversal;
+import uk.nhs.interoperability.payloads.DomainObjectFactory;
+import uk.nhs.interoperability.payloads.Payload;
 import uk.nhs.interoperability.payloads.toc_edischarge_draftB.ClinicalDocument;
+import uk.nhs.interoperability.payloads.gui.model.PayloadObjectSerialiseExclusions;
+import uk.nhs.interoperability.payloads.gui.model.PayloadObjectSerialiser;
 
 public class PayloadObjectServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -27,27 +25,45 @@ public class PayloadObjectServlet extends HttpServlet {
 		// Set response content type
 		response.setContentType("application/json");
 		
-		Gson gson = new GsonBuilder().create();
+		String name = "ClinicalDocument";
+		String packg = "uk.nhs.interoperability.payloads.toc_edischarge_draftB";
+		boolean reset = false;
 		
-		PayloadObject payload;
-		ClinicalDocument doc;
-		
-		HttpSession session = request.getSession(true);
-		if (session.getAttribute("PayloadObject") == null) {
-			payload = new PayloadObject(new ClinicalDocument());
-		} else {
-			payload = (PayloadObject)session.getAttribute("PayloadObject");
+		if (request.getParameter("name") != null) {
+			if (request.getParameter("packg") != null) {
+				name = request.getParameter("name");
+				packg = request.getParameter("packg");
+				if (request.getParameter("reset") != null) {
+					reset = request.getParameter("reset").equals("true");
+				}
+			}
 		}
 		
-		doc = ((ClinicalDocument)payload.getPayload());
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(Payload.class, new PayloadObjectSerialiser());
+		gsonBuilder.setExclusionStrategies(new PayloadObjectSerialiseExclusions());
+		Gson gson = gsonBuilder.create();
 		
-		doc.setDocumentId("1234");
-		doc.setDocumentVersionNumber("1");
-		AuthorPersonUniversal author = new AuthorPersonUniversal();
-		author.setName(new PersonName("Mr", "Adam", "Hatherly"));
-		doc.setAuthor(author);
+		Payload doc;
+
+		HttpSession session = request.getSession(true);
+		if (reset) {
+			doc = DomainObjectFactory.getDomainObject(name, packg);
+			session.setAttribute("MainPayload", doc);
+		} else {
+			if (session.getAttribute("MainPayload") == null) {
+				doc = DomainObjectFactory.getDomainObject(name, packg);
+				session.setAttribute("MainPayload", doc);
+			} else {
+				doc = (Payload)session.getAttribute("MainPayload");
+				if (doc == null) {
+					doc = DomainObjectFactory.getDomainObject(name, packg);
+					session.setAttribute("MainPayload", doc);
+				}
+			}
+		}
 		
 		PrintWriter out = response.getWriter();
-		gson.toJson(payload, out);
+		gson.toJson(doc, Payload.class, out);
 	}
 }
