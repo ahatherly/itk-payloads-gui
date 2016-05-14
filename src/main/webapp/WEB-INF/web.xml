@@ -13,6 +13,10 @@
 	   <servlet-name>GenerateCDAServlet</servlet-name>
 	   <servlet-class>uk.nhs.interoperability.payloads.gui.api.GenerateCDAServlet</servlet-class>
 	</servlet>
+	<servlet>
+	   <servlet-name>VocabServlet</servlet-name>
+	   <servlet-class>uk.nhs.interoperability.payloads.gui.api.VocabServlet</servlet-class>
+	</servlet>
 	
 	<servlet-mapping>
 	   <servlet-name>PayloadObjectServlet</servlet-name>
@@ -21,5 +25,9 @@
 	<servlet-mapping>
 	   <servlet-name>GenerateCDAServlet</servlet-name>
 	   <url-pattern>/generateCDA</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	   <servlet-name>VocabServlet</servlet-name>
+	   <url-pattern>/vocab</url-pattern>
 	</servlet-mapping>
 </web-app>

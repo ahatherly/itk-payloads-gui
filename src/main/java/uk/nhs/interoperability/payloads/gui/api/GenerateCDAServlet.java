@@ -27,10 +27,7 @@ public class GenerateCDAServlet extends HttpServlet {
 		// Set response content type
 		response.setContentType("application/xml");
 		
-		
-		
 		GsonBuilder gsonBuilder = new GsonBuilder();
-		//gsonBuilder.registerTypeAdapter(Payload.class, new PayloadInstanceCreator());
 		gsonBuilder.registerTypeAdapter(Payload.class, new PayloadObjectDeserialiser());
 		
 		Gson gson = gsonBuilder.create();
@@ -50,11 +47,7 @@ public class GenerateCDAServlet extends HttpServlet {
 		XMLNamespaceContext namespaces;
 		String rootNodeName;
 		
-		//if (payload.getNamespaceContext() == null) {
-			namespaces = parentNamespaces;
-		//} else {
-			//namespaces = payload.getNamespaceContext();
-		//}
+		namespaces = parentNamespaces;
 		
 		if (payload.getRootNode() == null) {
 			rootNodeName = "ClinicalDocument";
@@ -66,9 +59,6 @@ public class GenerateCDAServlet extends HttpServlet {
 				rootNodeName = rootNodeName.substring(2);
 			}
 		}
-		
-		System.out.println("Root node name: " + rootNodeName);
-		System.out.println("Namespaces: " + namespaces.toString());
 		
 		PrintWriter out = response.getWriter();
 		out.append(PayloadSerialiser.serialise(payload, rootNodeName, namespaces));

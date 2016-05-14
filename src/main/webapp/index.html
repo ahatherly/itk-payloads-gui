@@ -51,13 +51,20 @@
 					<label>
 						<a title="{{field.description}}">{{field.name}}</a>
 					    <input type="text" placeholder="{{field.type}}"
-					    		ng-model="field.value">
+					    		ng-model="field.value"
+					    		ng-if="field.type == 'String' || field.type == 'XML'">
+					    <input disabled type="text" placeholder="Fields of {{field.type}} not yet supported!"
+					    		ng-model="field.value"
+					    		ng-if="!(field.type == 'String' || field.type == 'XML')">
 				    </label>
 				  </div>
 				</div>
 			</form>
 		  </div>
 		  <div class="large-6 columns">
+		    <div class="instructions">
+		    	Hover over a field name to get more details about the field.
+		    </div>
 		    <div>
 		    	<a class="button" ng-click="payload.generateCDA()">Generate CDA</a>
 		    	<a class="button" href="#">Generate Rendered Document</a>
