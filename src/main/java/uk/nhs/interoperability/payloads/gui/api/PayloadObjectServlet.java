@@ -18,6 +18,8 @@ import uk.nhs.interoperability.payloads.Payload;
 import uk.nhs.interoperability.payloads.toc_edischarge_draftB.ClinicalDocument;
 import uk.nhs.interoperability.payloads.gui.model.PayloadObjectSerialiseExclusions;
 import uk.nhs.interoperability.payloads.gui.model.PayloadObjectSerialiser;
+import uk.nhs.interoperability.payloads.gui.model.Vocabulary;
+import uk.nhs.interoperability.payloads.gui.model.VocabularySerialiser;
 
 public class PayloadObjectServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -41,6 +43,7 @@ public class PayloadObjectServlet extends HttpServlet {
 		
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Payload.class, new PayloadObjectSerialiser());
+		gsonBuilder.registerTypeAdapter(Vocabulary.class, new VocabularySerialiser());
 		gsonBuilder.setExclusionStrategies(new PayloadObjectSerialiseExclusions());
 		Gson gson = gsonBuilder.create();
 		

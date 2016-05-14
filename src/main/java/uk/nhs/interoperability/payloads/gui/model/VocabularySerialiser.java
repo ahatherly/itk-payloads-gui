@@ -26,7 +26,8 @@ public class VocabularySerialiser implements JsonSerializer<uk.nhs.interoperabil
 		
 		for (String code : src.getEntries().keySet()) {
 			HashMap entry = new HashMap();
-			entry.put(code, src.getEntry(code).getDisplayName());
+			entry.put("code", code);
+			entry.put("displayName", src.getEntry(code).getDisplayName());
 			if (oid == null) {
 				oid = src.getEntry(code).getOID();
 			}

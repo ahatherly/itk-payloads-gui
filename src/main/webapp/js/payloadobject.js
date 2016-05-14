@@ -7,7 +7,8 @@ app.controller('PayloadCtrl', function($scope, $http) {
 	    {'label':'Child Screening', 'name': 'ClinicalDocument', 'packg':'uk.nhs.interoperability.payloads.childscreeningv2'},
 	    {'label':'Non-Coded CDA', 'name': 'ClinicalDocument', 'packg':'uk.nhs.interoperability.payloads.noncodedcdav2'},
 	    {'label':'End of Life Care', 'name': 'ClinicalDocument', 'packg':'uk.nhs.interoperability.payloads.endoflifecarev1'},
-	    {'label':'Author (Person)', 'name': 'AuthorPersonUniversal', 'packg':'uk.nhs.interoperability.payloads.templates'}
+	    {'label':'Author (Person)', 'name': 'AuthorPersonUniversal', 'packg':'uk.nhs.interoperability.payloads.templates'},
+	    {'label':'Child (Person)', 'name': 'ChildPatientUniversal', 'packg':'uk.nhs.interoperability.payloads.templates'}
 	];
 	
 	this.cda = 'Click the generate button to generate CDA here!';
@@ -55,7 +56,8 @@ app.controller('PayloadCtrl', function($scope, $http) {
 		);
 	}
 	
-	this.setDocumentType = function(name, packg) {
+	this.setDocumentType = function(name, packg, label) {
+		$('#chosenDocumentType').html(label)
 		$http.get("/itk-payloads-gui/payload?name="+name+"&packg="+packg+"&reset=true")
 			.success(payloadScope.processPayloadFromServer)
 			.error(function(response) {

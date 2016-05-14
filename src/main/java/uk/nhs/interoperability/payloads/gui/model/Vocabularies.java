@@ -11,12 +11,16 @@ public class Vocabularies {
 	// Cache in-memory to avoid constantly having to read terms using reflection
 	private static HashMap<String, Vocabulary> vocabularies = new HashMap<String, Vocabulary>();
 	
-	public static String getVocab(String vocabName) {
+	public static String getVocabJson(String vocabName) {
+		return getVocab(vocabName).toJSON();
+	}
+	
+	public static Vocabulary getVocab(String vocabName) {
 		if (!vocabularies.containsKey(vocabName)) {
 			Vocabulary v = getVocabEnumByReflection(vocabName);
 			vocabularies.put(vocabName, v);
 		}
-		return vocabularies.get(vocabName).toJSON();
+		return vocabularies.get(vocabName);
 	}
 	
 	private static Vocabulary getVocabEnumByReflection(String enumName) {
@@ -40,6 +44,6 @@ public class Vocabularies {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(getVocab("x_BasicConfidentialityKind"));
+		System.out.println(getVocabJson("x_BasicConfidentialityKind"));
 	}
 }

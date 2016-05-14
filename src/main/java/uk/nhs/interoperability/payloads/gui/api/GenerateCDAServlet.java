@@ -38,8 +38,8 @@ public class GenerateCDAServlet extends HttpServlet {
 		try {
 			BufferedReader reader = request.getReader();
 			payload = gson.fromJson(reader, Payload.class);
-			System.out.println(payload);
-		    /*while ((line = reader.readLine()) != null)
+			/*System.out.println(payload);
+		    while ((line = reader.readLine()) != null)
 		    	jb.append(line);
 		    System.out.println(jb.toString());*/
 		} catch (Exception e) { e.printStackTrace(); }

@@ -20,13 +20,17 @@ public class PayloadObjectSerialiser implements JsonSerializer<Payload> {
 		String name = src.getClassName().toString();
 		String packg = src.getPackage().toString();
 		
+		// Values within payload
 		HashMap<String, Object> fields = new HashMap<String, Object>();
 		for (String fieldName : src.getFieldDefinitions().keySet()) {
 			fields.put(fieldName, src.getValue(fieldName));
 		}
 		
 		JsonObject json = new JsonObject();
+		
+		// Field definitions
 		JsonElement fieldDefinitionsJson = context.serialize(getFieldDefinitions(src));
+		// Field values
 		JsonElement fieldValues = context.serialize(fields);
 		
 		json.add("name", new JsonPrimitive(name));
@@ -46,6 +50,12 @@ public class PayloadObjectSerialiser implements JsonSerializer<Payload> {
 			// Don't include the fixed fields
 			switch(f.getTypeEnum()) {
 			case Fixed:
+				break;
+			case CodedValue:
+				FieldDecorator fd = new FieldDecorator(f);
+				Vocabulary vocabValues = Vocabularies.getVocab(f.getVocabulary());
+				fd.setVocabValues(vocabValues);
+				fields.add(fd);
 				break;
 			default:
 				fields.add(f);

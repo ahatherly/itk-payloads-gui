@@ -31,7 +31,7 @@ public class VocabServlet extends HttpServlet {
 		
 		if (request.getParameter("vocab") != null) {
 			vocab = request.getParameter("vocab");
-			out.write(Vocabularies.getVocab(vocab));
+			out.write(Vocabularies.getVocabJson(vocab));
 		} else {
 			out.write("No vocab specified");
 		}
