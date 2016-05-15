@@ -1,6 +1,7 @@
 var app = angular.module('PayloadObject',[]);
 app.controller('PayloadCtrl', function($scope, $http) { 
 	var payloadScope = this;
+	this.payloadStack = [];
 	
 	this.payloadList = [
 	    {'label':'Transfer Of Care', 'name': 'ClinicalDocument', 'packg':'uk.nhs.interoperability.payloads.toc_edischarge_draftB'},
@@ -16,6 +17,9 @@ app.controller('PayloadCtrl', function($scope, $http) {
 	this.name = 'ClinicalDocument';
 	
 	this.processPayloadFromServer = function(response) {
+		if (response.data) {
+			response = response.data;
+		}
 		payloadScope.fields = response.fields;
 		payloadScope.data = response.payload;
 		payloadScope.name = response.name;
@@ -56,26 +60,87 @@ app.controller('PayloadCtrl', function($scope, $http) {
 		);
 	}
 	
+	this.save = function(action, newPayloadName,
+							newPayloadPackg, parentFieldName) {
+		var submitData = {};
+		
+		submitData['name'] = this.name;
+		submitData['packg'] = this.packg;
+		submitData['payload'] = {};
+		submitData['payload']['fields'] = {};
+		
+		$.each(this.fields, function( index, field ) {
+			if (field.value) {
+				submitData['payload']['fields'][field.name] = field.value;
+			}
+		});
+		
+		if (action == 'pop') {
+			$http.post('/itk-payloads-gui/save', submitData).then(
+					payloadScope.popChild,
+					function(response) {
+						payloadScope.cda = "An error occurred saving the data!";
+						console.log(response);
+					}
+			);
+		} else {
+			$http.post('/itk-payloads-gui/save?action=push&newPayloadName='+newPayloadName+
+						'&newPayloadPackg='+newPayloadPackg+'&parentFieldName='+parentFieldName,
+						submitData).then(
+					payloadScope.pushChild,
+					function(response) {
+						payloadScope.cda = "An error occurred saving the data!";
+						console.log(response);
+					}
+			);
+		}
+	}
+	
 	this.setDocumentType = function(name, packg, label) {
 		$('#chosenDocumentType').html(label)
-		$http.get("/itk-payloads-gui/payload?name="+name+"&packg="+packg+"&reset=true")
-			.success(payloadScope.processPayloadFromServer)
+		$http.get("/itk-payloads-gui/payload?newPayloadName="+name+"&newPayloadPackg="+packg+"&reset=true")
+			.success(payloadScope.resetStack)
 			.error(function(response) {
 				alert("Server call failed");
 			});
 	}
 	
+	this.resetStack = function(response) {
+		payloadScope.payloadStack.length=0;
+		payloadScope.processPayloadFromServer(response);
+	}
+	
+	this.pushChild = function(response) {
+		if (response.data)
+			payloadScope.payloadStack.push(response.data.name);
+		else
+			payloadScope.payloadStack.push(response.name);
+		console.log('New Stack:');
+		console.log(payloadScope.payloadStack);
+		payloadScope.processPayloadFromServer(response);
+	}
+	
+	this.popChild = function(response) {
+		payloadScope.payloadStack.pop();
+		console.log('New Stack:');
+		console.log(payloadScope.payloadStack);
+		payloadScope.processPayloadFromServer(response.data);
+	}
+	/*
 	this.openChildPayload = function(name, packg, parentFieldName) {
-		$http.get("/itk-payloads-gui/payload?name="+name+"&packg="+packg+"&parentFieldName="+parentFieldName)
-			.success(payloadScope.processPayloadFromServer)
+		$http.get("/itk-payloads-gui/save?action=push&name="+name+
+					"&packg="+packg+"&parentPayloadField="+parentFieldName)
+			.success(payloadScope.pushChild)
 			.error(function(response) {
 				alert("Server call failed");
 			});
 	}
+	*/
 	
 	// Call the server to get our initial data
-	$http.get("/itk-payloads-gui/payload?name="+this.name+"&packg="+this.packg+"&reset=true")
-		.success(payloadScope.processPayloadFromServer)
+	$http.get("/itk-payloads-gui/payload?newPayloadName="+this.name+
+			"&newPayloadPackg="+this.packg+"&reset=true")
+		.success(payloadScope.pushChild)
 		.error(function(response) {
 			alert("Server call failed");
 		});

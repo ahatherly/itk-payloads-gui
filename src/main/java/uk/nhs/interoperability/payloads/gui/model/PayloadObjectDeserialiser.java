@@ -1,6 +1,7 @@
 package uk.nhs.interoperability.payloads.gui.model;
 
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -30,7 +31,12 @@ public class PayloadObjectDeserialiser implements JsonDeserializer<Payload> {
 		String name = jsonObject.getAsJsonPrimitive("name").getAsString();
 		String packg = jsonObject.getAsJsonPrimitive("packg").getAsString();
 		
-		Set<Entry<String, JsonElement>> fieldSet = fields.entrySet();
+		Set<Entry<String, JsonElement>> fieldSet;
+		if (fields == null) {
+			fieldSet = new HashSet<Entry<String, JsonElement>>();
+		} else {
+			fieldSet = fields.entrySet();
+		}
 		
 		Payload doc = DomainObjectFactory.getDomainObject(name, packg);
 		

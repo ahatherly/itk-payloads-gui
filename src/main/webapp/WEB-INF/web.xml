@@ -17,6 +17,10 @@
 	   <servlet-name>VocabServlet</servlet-name>
 	   <servlet-class>uk.nhs.interoperability.payloads.gui.api.VocabServlet</servlet-class>
 	</servlet>
+	<servlet>
+	   <servlet-name>SavePayloadServlet</servlet-name>
+	   <servlet-class>uk.nhs.interoperability.payloads.gui.api.SavePayloadServlet</servlet-class>
+	</servlet>
 	
 	<servlet-mapping>
 	   <servlet-name>PayloadObjectServlet</servlet-name>
@@ -30,4 +34,8 @@
 	   <servlet-name>VocabServlet</servlet-name>
 	   <url-pattern>/vocab</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+	   <servlet-name>SavePayloadServlet</servlet-name>
+	   <url-pattern>/save</url-pattern>
+	</servlet-mapping>	
 </web-app>
