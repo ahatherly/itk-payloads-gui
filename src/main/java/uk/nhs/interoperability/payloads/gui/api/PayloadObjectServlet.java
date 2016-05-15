@@ -3,6 +3,7 @@ package uk.nhs.interoperability.payloads.gui.api;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Stack;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,6 +17,7 @@ import com.google.gson.GsonBuilder;
 import uk.nhs.interoperability.payloads.DomainObjectFactory;
 import uk.nhs.interoperability.payloads.Payload;
 import uk.nhs.interoperability.payloads.toc_edischarge_draftB.ClinicalDocument;
+import uk.nhs.interoperability.payloads.gui.model.PayloadAndFieldName;
 import uk.nhs.interoperability.payloads.gui.model.PayloadObjectSerialiseExclusions;
 import uk.nhs.interoperability.payloads.gui.model.PayloadObjectSerialiser;
 import uk.nhs.interoperability.payloads.gui.model.Vocabulary;
@@ -29,6 +31,7 @@ public class PayloadObjectServlet extends HttpServlet {
 		
 		String name = "ClinicalDocument";
 		String packg = "uk.nhs.interoperability.payloads.toc_edischarge_draftB";
+		String parentPayloadField = null;
 		boolean reset = false;
 		
 		if (request.getParameter("name") != null) {
@@ -37,6 +40,9 @@ public class PayloadObjectServlet extends HttpServlet {
 				packg = request.getParameter("packg");
 				if (request.getParameter("reset") != null) {
 					reset = request.getParameter("reset").equals("true");
+				}
+				if (request.getParameter("parentPayloadField") != null) {
+					parentPayloadField = request.getParameter("parentPayloadField");
 				}
 			}
 		}
@@ -47,26 +53,12 @@ public class PayloadObjectServlet extends HttpServlet {
 		gsonBuilder.setExclusionStrategies(new PayloadObjectSerialiseExclusions());
 		Gson gson = gsonBuilder.create();
 		
-		Payload doc;
-
-		HttpSession session = request.getSession(true);
-		if (reset) {
-			doc = DomainObjectFactory.getDomainObject(name, packg);
-			session.setAttribute("MainPayload", doc);
-		} else {
-			if (session.getAttribute("MainPayload") == null) {
-				doc = DomainObjectFactory.getDomainObject(name, packg);
-				session.setAttribute("MainPayload", doc);
-			} else {
-				doc = (Payload)session.getAttribute("MainPayload");
-				if (doc == null) {
-					doc = DomainObjectFactory.getDomainObject(name, packg);
-					session.setAttribute("MainPayload", doc);
-				}
-			}
-		}
+		// Get the payload we want to send back.
+		Payload doc = PayloadStackManager.getPayloadFromStack(request,
+											reset, name, packg, parentPayloadField);
 		
 		PrintWriter out = response.getWriter();
 		gson.toJson(doc, Payload.class, out);
 	}
+	
 }

@@ -52,7 +52,7 @@
 						<a title="{{field.description}}">{{field.name}}</a>
 					    <input type="text" placeholder="{{field.type}}"
 					    		ng-model="field.value"
-					    		ng-if="field.type == 'String' || field.type == 'XML'">
+					    		ng-if="field.type == 'String' || field.type == 'XML'" />
 					    <select ng-model="field.value"
 					    		ng-if="field.type == 'CodedValue'">
 					    	<option ng-repeat="vocabField in field.vocabValues.entries"
@@ -60,8 +60,25 @@
 					    </select>
 					    <input disabled type="text" placeholder="Fields of {{field.type}} not yet supported!"
 					    		ng-model="field.value"
-					    		ng-if="!(field.type == 'String' || field.type == 'XML' || field.type == 'CodedValue')">
+					    		ng-if="(field.type == 'HL7Date' ||
+					    			    field.type == 'Templated' ||
+					    			    field.type == 'CompositionalStatement')" />
 				    </label>
+				    
+				    <!-- Child payloads -->
+				    <div class="childPayloadField"
+				    	 ng-if="!(field.type == 'String' ||
+					    			     field.type == 'XML' ||
+					    			     field.type == 'HL7Date' ||
+					    			     field.type == 'CodedValue' ||
+					    			     field.type == 'Templated' ||
+					    			     field.type == 'CompositionalStatement')">
+				   	  <div>
+					    <a ng-click="payload.openChildPayload(field.type,
+					    							field.typePackage, field.name)"
+						   		>Open child payload</a>
+					  </div>
+				    </div>
 				  </div>
 				</div>
 			</form>

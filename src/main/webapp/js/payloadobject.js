@@ -65,6 +65,14 @@ app.controller('PayloadCtrl', function($scope, $http) {
 			});
 	}
 	
+	this.openChildPayload = function(name, packg, parentFieldName) {
+		$http.get("/itk-payloads-gui/payload?name="+name+"&packg="+packg+"&parentFieldName="+parentFieldName)
+			.success(payloadScope.processPayloadFromServer)
+			.error(function(response) {
+				alert("Server call failed");
+			});
+	}
+	
 	// Call the server to get our initial data
 	$http.get("/itk-payloads-gui/payload?name="+this.name+"&packg="+this.packg+"&reset=true")
 		.success(payloadScope.processPayloadFromServer)

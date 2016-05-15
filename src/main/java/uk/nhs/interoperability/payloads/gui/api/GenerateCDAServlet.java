@@ -14,7 +14,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import uk.nhs.interoperability.payloads.Payload;
-import uk.nhs.interoperability.payloads.gui.model.DummyPayload;
 import uk.nhs.interoperability.payloads.gui.model.PayloadObjectDeserialiser;
 import uk.nhs.interoperability.payloads.util.xml.PayloadSerialiser;
 import uk.nhs.interoperability.payloads.util.xml.XMLNamespaceContext;
