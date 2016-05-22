@@ -87,7 +87,8 @@
 		    	Hover over a field name to get more details about the field.
 		    </div>
 		    <div>
-		    	<a class="button" ng-click="payload.save()">Save and Return to Parent</a>
+		    	<a class="button" ng-click="payload.save('pop')"
+		    		ng-if="payload.payloadStack.length > 1">Save and Return to Parent</a>
 		    </div>
 		    <div>
 		    	<a class="button" ng-click="payload.generateCDA()">Generate CDA</a>

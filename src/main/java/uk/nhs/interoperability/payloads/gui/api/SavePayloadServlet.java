@@ -44,8 +44,8 @@ public class SavePayloadServlet extends HttpServlet {
 		try {
 			BufferedReader reader = request.getReader();
 			payload = gson.fromJson(reader, Payload.class);
-			/*System.out.println(payload);
-		    while ((line = reader.readLine()) != null)
+			//System.out.println("NEWLY CREATED PAYLOAD:\n"+payload);
+		    /*while ((line = reader.readLine()) != null)
 		    	jb.append(line);
 		    System.out.println(jb.toString());*/
 		} catch (Exception e) { e.printStackTrace(); }
@@ -64,5 +64,5 @@ public class SavePayloadServlet extends HttpServlet {
 		//PrintWriter out = response.getWriter();
 		//out.append(PayloadSerialiser.serialise(payload, rootNodeName, namespaces));
 		//out.append("Done"); 
-	}
+	} 
 }

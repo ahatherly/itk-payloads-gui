@@ -119,6 +119,7 @@ public class PayloadStackManager {
 		HttpSession session = request.getSession(true);
 		// Save the updated stack back in the session
 		session.setAttribute("PayloadStack", payloadStack);
+		System.out.println("***********************************************");
 		System.out.println("Saving payload stack: [");
 		for (SerialisablePayloadAndFieldName item : payloadStack) {
 			Payload tempPayload = item.getPayload();
@@ -127,6 +128,7 @@ public class PayloadStackManager {
 			System.out.println("      " + tempPayload.toString());
 		}
 		System.out.println("]");
+		System.out.println("***********************************************");
 	}
 	
 	private static Stack<SerialisablePayloadAndFieldName> 

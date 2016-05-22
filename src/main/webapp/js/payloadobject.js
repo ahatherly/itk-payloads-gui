@@ -42,11 +42,10 @@ app.controller('PayloadCtrl', function($scope, $http) {
 		submitData['name'] = this.name;
 		submitData['packg'] = this.packg;
 		submitData['payload'] = {};
-		submitData['payload']['fields'] = {};
 		
 		$.each(this.fields, function( index, field ) {
 			if (field.value) {
-				submitData['payload']['fields'][field.name] = field.value;
+				submitData['payload'][field.name] = field.value;
 			}
 		});
 		
@@ -67,11 +66,10 @@ app.controller('PayloadCtrl', function($scope, $http) {
 		submitData['name'] = this.name;
 		submitData['packg'] = this.packg;
 		submitData['payload'] = {};
-		submitData['payload']['fields'] = {};
 		
 		$.each(this.fields, function( index, field ) {
 			if (field.value) {
-				submitData['payload']['fields'][field.name] = field.value;
+				submitData['payload'][field.name] = field.value;
 			}
 		});
 		
