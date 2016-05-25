@@ -32,12 +32,15 @@ public class SavePayloadServlet extends HttpServlet {
 		
 		boolean isPop = true;
 		if (request.getParameter("action") != null) {
-			System.out.println("Action: " + request.getParameter("action"));
 			if (request.getParameter("action").equals("push")) {
 				isPop = false;
 			}
 		}
-		
+		if (isPop) {
+			System.out.println("POP!");
+		} else {
+			System.out.println("PUSH!");
+		}
 		StringBuffer jb = new StringBuffer();
 		String line = null;
 		Payload payload = null;

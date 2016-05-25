@@ -34,7 +34,7 @@ public class SerialisablePayloadAndFieldName implements Serializable {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Payload.class, new PayloadObjectDeserialiser());
 		Gson gson = gsonBuilder.create();
-		System.out.println("Deserialising JSON: " + this.payloadJson);
+		//System.out.println("Deserialising JSON: " + this.payloadJson);
 		return gson.fromJson(this.payloadJson, Payload.class);
 	}
 	
@@ -44,7 +44,7 @@ public class SerialisablePayloadAndFieldName implements Serializable {
 		gsonBuilder.registerTypeAdapter(Vocabulary.class, new VocabularySerialiser());
 		gsonBuilder.setExclusionStrategies(new PayloadObjectSerialiseExclusions());
 		Gson gson = gsonBuilder.create();
-		System.out.println("Serialising to JSON: " + payload.toString());
+		//System.out.println("Serialising to JSON: " + payload.toString());
 		this.payloadJson = gson.toJson(payload, Payload.class);
 	}
 	

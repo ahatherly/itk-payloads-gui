@@ -38,12 +38,13 @@ public class PayloadObjectServlet extends HttpServlet {
 		// Set response content type
 		response.setContentType("application/json");
 		
+		/*
 		Enumeration e = request.getParameterNames();
 		while (e.hasMoreElements()) {
 			String paramName = (String)e.nextElement();
 			System.out.println("  Parameter passed to servlet: "+paramName+
 					"="+request.getParameter(paramName));
-		}
+		}*/
 		
 		String name = "ClinicalDocument";
 		String packg = "uk.nhs.interoperability.payloads.toc_edischarge_draftB";
@@ -62,8 +63,8 @@ public class PayloadObjectServlet extends HttpServlet {
 				}
 			}
 		}
-		System.out.println("**** Params:  newPayloadName:"+name+
-				" newPayloadPackg:"+packg);
+		/*System.out.println("**** Params:  newPayloadName:"+name+
+				" newPayloadPackg:"+packg);*/
 		
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Payload.class, new PayloadObjectSerialiser());
@@ -83,7 +84,7 @@ public class PayloadObjectServlet extends HttpServlet {
 												reset, name, packg, parentPayloadField);
 		}
 		
-		System.out.println("Payload to return to browser: " + doc.toString());
+		//System.out.println("Payload to return to browser: " + doc.toString());
 		PrintWriter out = response.getWriter();
 		gson.toJson(doc, Payload.class, out);
 	} 

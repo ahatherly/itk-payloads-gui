@@ -49,7 +49,6 @@ public class PayloadStackManager {
 		Stack<SerialisablePayloadAndFieldName> payloadStack;
 
 		if (!stacksAreInSession(request)) {
-			System.out.println("Error saving payload!");
 			return null;
 		} else {
 			payloadStack = loadPayloadStackFromSession(request);
@@ -86,11 +85,9 @@ public class PayloadStackManager {
 	 * @return
 	 */
 	public static void savePayload(Payload payload, HttpServletRequest request) {
-		System.out.println("Save payload");
 		Stack<SerialisablePayloadAndFieldName> payloadStack;
 
 		if (!stacksAreInSession(request)) {
-			System.out.println("Error saving payload!");
 			return;
 		} else {
 			payloadStack = loadPayloadStackFromSession(request);
@@ -109,29 +106,19 @@ public class PayloadStackManager {
 		}
 	}
 	
-	private static boolean stacksAreInSession(HttpServletRequest request) {
+	protected static boolean stacksAreInSession(HttpServletRequest request) {
 		HttpSession session = request.getSession(true);
-		return (!((Stack<SerialisablePayloadAndFieldName>)session.getAttribute("PayloadStack") == null));
+		return (!(session.getAttribute("PayloadStack") == null));
 	}
 	
-	private static void saveStacksToSession(HttpServletRequest request, 
+	protected static void saveStacksToSession(HttpServletRequest request, 
 				Stack<SerialisablePayloadAndFieldName> payloadStack) {
 		HttpSession session = request.getSession(true);
 		// Save the updated stack back in the session
 		session.setAttribute("PayloadStack", payloadStack);
-		System.out.println("***********************************************");
-		System.out.println("Saving payload stack: [");
-		for (SerialisablePayloadAndFieldName item : payloadStack) {
-			Payload tempPayload = item.getPayload();
-			System.out.println("   " + tempPayload.getClassName() +
-					" - parent field:" + item.getFieldName());
-			System.out.println("      " + tempPayload.toString());
-		}
-		System.out.println("]");
-		System.out.println("***********************************************");
 	}
 	
-	private static Stack<SerialisablePayloadAndFieldName> 
+	protected static Stack<SerialisablePayloadAndFieldName> 
 						loadPayloadStackFromSession(HttpServletRequest request) {
 		HttpSession session = request.getSession(true);
 		// Load the stack from the session
