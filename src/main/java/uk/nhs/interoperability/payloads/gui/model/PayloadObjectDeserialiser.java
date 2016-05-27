@@ -11,8 +11,10 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 
 import uk.nhs.interoperability.payloads.CodedValue;
+import uk.nhs.interoperability.payloads.DateValue;
 import uk.nhs.interoperability.payloads.DomainObjectFactory;
 import uk.nhs.interoperability.payloads.FieldType;
 import uk.nhs.interoperability.payloads.Payload;
@@ -23,6 +25,8 @@ import uk.nhs.interoperability.payloads.vocabularies.VocabularyEntry;
 public class PayloadObjectDeserialiser implements JsonDeserializer<Payload> {
 	public Payload deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 		      throws JsonParseException {
+		
+		System.out.println(" == DESERIALISE: " + json.toString());
 		
 		JsonObject jsonObject = json.getAsJsonObject();
 		JsonObject payload = jsonObject.getAsJsonObject("payload");
@@ -43,6 +47,7 @@ public class PayloadObjectDeserialiser implements JsonDeserializer<Payload> {
 			String key = entry.getKey();
 			JsonElement value = entry.getValue();
 			
+			System.out.println("KEY = " + key);
 			Field fieldDefinition = doc.getFieldDefinitions().get(key);
 			FieldType fieldType = fieldDefinition.getTypeEnum();
 			
@@ -86,10 +91,38 @@ public class PayloadObjectDeserialiser implements JsonDeserializer<Payload> {
 					System.out.println("CODE WAS NULL!!! Field="+key);
 				}
 				break;
+			
+			case Templated:
+				// TODO: Add the correct class name when serialising otherwise we can't deserialise!
+			case Other:
+				// We get this:
+				// {"fields":{"OrgName":"OrgName"},"parentObjectXPath":"","parentObjectNames":[]}
+				// But need this:
+				// {"name":"ClinicalDocument","packg":"uk.nhs.interoperability.payloads.toc_edischarge_draftB",
+				//  "payload":{"OrgName":"OrgName"}}
+				// So we need to tweak the content a bit before we recurse
+				JsonObject fields = value.getAsJsonObject().get("fields").getAsJsonObject();
+				JsonObject child = new JsonObject();
+				child.add("name", new JsonPrimitive(fieldDefinition.getTypeName()));
+				String childPackage = fieldDefinition.getTypePackage();
+				if (childPackage.endsWith(".")) {
+					childPackage = childPackage.substring(0, childPackage.length()-1);
+				}
+				child.add("packg", new JsonPrimitive(childPackage));
+				child.add("payload", fields);
+				Payload childPayload = context.deserialize(child, Payload.class);
+				doc.setValue(key, childPayload);
+				break;
+			
+			case HL7Date:
+				// {"value":"19700101","precision":"Days"}
+				String dateVal = value.getAsJsonObject().get("value").getAsString();
+				DateValue hl7Date = new DateValue(dateVal);
+				doc.setValue(key, hl7Date);
+			case CompositionalStatement:
+				//TODO: Deal with Compositional Statements
 			}
-			
-			
-			//TODO: Deal with child payloads and other types here...
+
 		}
 		return doc;
 	}
