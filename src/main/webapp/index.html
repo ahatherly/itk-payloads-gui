@@ -52,16 +52,19 @@
 						<a title="{{field.description}}">{{field.name}}</a>
 					    <input type="text" placeholder="{{field.type}}"
 					    		ng-model="field.value"
-					    		ng-if="field.type == 'String' || field.type == 'XML'" />
+					    		ng-if="(field.type == 'String' && field.vocabulary == null) || field.type == 'XML'" />
+					    		
+
 					    <select ng-model="field.value"
-					    		ng-if="field.type == 'CodedValue'">
+					    		ng-if="field.type == 'CodedValue' || field.vocabulary != null">
+					    	<option value="">&nbsp;</option>
 					    	<option ng-repeat="vocabField in field.vocabValues.entries"
 					    		value="{{vocabField.code}}">{{vocabField.displayName}}</option>
 					    </select>
 					    <input disabled type="text" placeholder="Fields of {{field.type}} not yet supported!"
 					    		ng-model="field.value"
 					    		ng-if="(field.type == 'HL7Date' ||
-					    			    field.type == 'Templated' ||
+					    			    field.typeEnum == 'Templated' ||
 					    			    field.type == 'CompositionalStatement')" />
 				    </label>
 				    
@@ -71,11 +74,11 @@
 					    			     field.type == 'XML' ||
 					    			     field.type == 'HL7Date' ||
 					    			     field.type == 'CodedValue' ||
-					    			     field.type == 'Templated' ||
+					    			     field.typeEnum == 'Templated' ||
 					    			     field.type == 'CompositionalStatement')">
 				   	  <div>
 					    <a ng-click="payload.save('push',field.type, field.typePackage, field.name)"
-						   		>Open child payload</a>
+						   		><span ng-if="field.value == null">Add</span><span ng-if="field.value != null">Edit</span></a>
 					  </div>
 				    </div>
 				  </div>
@@ -91,8 +94,8 @@
 		    		ng-if="payload.payloadStack.length > 1">Save and Return to Parent</a>
 		    </div>
 		    <div>
-		    	<a class="button" ng-click="payload.generateCDA()">Generate CDA</a>
-		    	<a class="button" href="#">Generate Rendered Document</a>
+		    	<a class="button" ng-click="payload.generateCDA()">Generate XML</a>
+		    	<!-- <a class="button" href="#">Generate Rendered Document</a>  -->
 		    </div>
 			<textarea id="cda" ng-model="payload.cda"></textarea>
 		  </div>

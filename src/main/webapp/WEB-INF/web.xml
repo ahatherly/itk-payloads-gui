@@ -21,6 +21,10 @@
 	   <servlet-name>SavePayloadServlet</servlet-name>
 	   <servlet-class>uk.nhs.interoperability.payloads.gui.api.SavePayloadServlet</servlet-class>
 	</servlet>
+	<servlet>
+	   <servlet-name>PopulatedPayloadsServlet</servlet-name>
+	   <servlet-class>uk.nhs.interoperability.payloads.gui.api.PopulatedPayloadsServlet</servlet-class>
+	</servlet>	
 	
 	<servlet-mapping>
 	   <servlet-name>PayloadObjectServlet</servlet-name>
@@ -37,5 +41,9 @@
 	<servlet-mapping>
 	   <servlet-name>SavePayloadServlet</servlet-name>
 	   <url-pattern>/save</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+	   <servlet-name>PopulatedPayloadsServlet</servlet-name>
+	   <url-pattern>/stack</url-pattern>
 	</servlet-mapping>	
 </web-app>

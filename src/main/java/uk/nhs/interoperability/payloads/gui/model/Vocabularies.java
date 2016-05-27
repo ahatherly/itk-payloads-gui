@@ -25,15 +25,26 @@ public class Vocabularies {
 	
 	private static Vocabulary getVocabEnumByReflection(String enumName) {
 		HashMap<String,VocabularyEntry> entries = new HashMap<String,VocabularyEntry>();
+		VocabularyEntry entry;
 		try {
 			Class<?> c = Class.forName("uk.nhs.interoperability.payloads.vocabularies.generated." + enumName);
 			List<?> keys = Arrays.asList(c.getEnumConstants());
 			for (Object key: keys) {
-				VocabularyEntry e = (VocabularyEntry)key;
-				entries.put(e.getCode(),e);
+				entry = (VocabularyEntry)key;
+				entries.put(entry.getCode(),entry);
 			}
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			// Perhaps this is an internal vocab.. try that
+			try {
+				Class<?> c = Class.forName("uk.nhs.interoperability.payloads.vocabularies.internal." + enumName);
+				List<?> keys = Arrays.asList(c.getEnumConstants());
+				for (Object key: keys) {
+					entry = (VocabularyEntry)key;
+					entries.put(entry.getCode(),entry);
+				}
+			}  catch (ClassNotFoundException e2) {
+				e2.printStackTrace();
+			}
 		}
 		
 		Vocabulary newVocab = new Vocabulary(enumName);

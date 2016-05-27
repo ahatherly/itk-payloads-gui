@@ -76,8 +76,9 @@ public class PayloadObjectServlet extends HttpServlet {
 		
 		// See if we have a payload in a request attribute, and if so use that
 		if (request.getAttribute("payload") != null) {
-			System.out.println("Using parent payload passed on from save servlet");
+			System.out.println("Using parent payload passed on from save servlet:");
 			doc = (Payload)request.getAttribute("payload");
+			System.out.println(doc.toString());
 		} else {
 			// Get the payload we want to send back.
 			doc = PayloadStackManager.pushNewPayloadToStack(request,

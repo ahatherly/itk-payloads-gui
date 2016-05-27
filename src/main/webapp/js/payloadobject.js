@@ -8,12 +8,12 @@ app.controller('PayloadCtrl', function($scope, $http) {
 	    {'label':'Child Screening', 'name': 'ClinicalDocument', 'packg':'uk.nhs.interoperability.payloads.childscreeningv2'},
 	    {'label':'Non-Coded CDA', 'name': 'ClinicalDocument', 'packg':'uk.nhs.interoperability.payloads.noncodedcdav2'},
 	    {'label':'End of Life Care', 'name': 'ClinicalDocument', 'packg':'uk.nhs.interoperability.payloads.endoflifecarev1'},
-	    {'label':'Author (Person)', 'name': 'AuthorPersonUniversal', 'packg':'uk.nhs.interoperability.payloads.templates'},
-	    {'label':'Child (Person)', 'name': 'ChildPatientUniversal', 'packg':'uk.nhs.interoperability.payloads.templates'}
+	    {'label':'Spine SOAP Message', 'name': 'SpineSOAP', 'packg':'uk.nhs.interoperability.payloads.spine'},
+	    {'label':'PDS Mini Service - Get NHS Number', 'name': 'GetNHSNumberRequest', 'packg':'uk.nhs.interoperability.payloads.pdsminiservicesv1_1'},
 	];
 	
-	this.cda = 'Click the generate button to generate CDA here!';
-	this.packg = 'uk.nhs.interoperability.payloads.childscreeningv2';
+	this.cda = 'Click the generate button to generate HL7v3/CDA content here!';
+	this.packg = 'uk.nhs.interoperability.payloads.toc_edischarge_draftB';
 	this.name = 'ClinicalDocument';
 	
 	this.processPayloadFromServer = function(response) {
@@ -29,10 +29,17 @@ app.controller('PayloadCtrl', function($scope, $http) {
 		$.each(payloadScope.data, function( keyToSet, valueToSet ) {
 			$.each(payloadScope.fields, function( index, field ) {
 				if (field.name == keyToSet) {
-					field.value = valueToSet;
+					if (field.type == 'CodedValue') {
+						field.value = valueToSet.code;
+					} else {
+						field.value = valueToSet;
+					}
 				}
 			});
 		});
+		
+		// Scroll the page to the top
+		window.scrollTo(0,0);
 	};
 	
 	this.generateCDA = function() {
@@ -113,27 +120,13 @@ app.controller('PayloadCtrl', function($scope, $http) {
 			payloadScope.payloadStack.push(response.data.name);
 		else
 			payloadScope.payloadStack.push(response.name);
-		console.log('New Stack:');
-		console.log(payloadScope.payloadStack);
 		payloadScope.processPayloadFromServer(response);
 	}
 	
 	this.popChild = function(response) {
 		payloadScope.payloadStack.pop();
-		console.log('New Stack:');
-		console.log(payloadScope.payloadStack);
 		payloadScope.processPayloadFromServer(response.data);
 	}
-	/*
-	this.openChildPayload = function(name, packg, parentFieldName) {
-		$http.get("/itk-payloads-gui/save?action=push&name="+name+
-					"&packg="+packg+"&parentPayloadField="+parentFieldName)
-			.success(payloadScope.pushChild)
-			.error(function(response) {
-				alert("Server call failed");
-			});
-	}
-	*/
 	
 	// Call the server to get our initial data
 	$http.get("/itk-payloads-gui/payload?newPayloadName="+this.name+

@@ -27,7 +27,11 @@ public class VocabularySerialiser implements JsonSerializer<uk.nhs.interoperabil
 		for (String code : src.getEntries().keySet()) {
 			HashMap entry = new HashMap();
 			entry.put("code", code);
-			entry.put("displayName", src.getEntry(code).getDisplayName());
+			String displayName = src.getEntry(code).getDisplayName();
+			if (displayName == null) {
+				displayName = code;
+			}
+			entry.put("displayName", displayName);
 			if (oid == null) {
 				oid = src.getEntry(code).getOID();
 			}
@@ -36,7 +40,9 @@ public class VocabularySerialiser implements JsonSerializer<uk.nhs.interoperabil
 		
 		JsonObject json = new JsonObject();
 		json.add("vocabName", new JsonPrimitive(name));
-		json.add("oid", new JsonPrimitive(oid));
+		if (oid != null) {
+			json.add("oid", new JsonPrimitive(oid));
+		}
 		json.add("entries", context.serialize(entries));
 		return json;
 	}

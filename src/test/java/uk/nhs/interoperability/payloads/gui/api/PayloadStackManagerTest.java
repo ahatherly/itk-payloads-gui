@@ -17,49 +17,17 @@ import java.util.Arrays;
 import java.util.Stack;
 
 import uk.nhs.interoperability.payloads.Payload;
+import uk.nhs.interoperability.payloads.commontypes.PersonName;
 import uk.nhs.interoperability.payloads.gui.model.SerialisablePayloadAndFieldName;
+import uk.nhs.interoperability.payloads.templates.PersonUniversal;
+import uk.nhs.interoperability.payloads.toc_edischarge_draftB.ClinicalDocument;
 
-public class PayloadStackManagerTest {
-	
-	protected Stack<SerialisablePayloadAndFieldName> payloadStack;
-	HttpServletRequest request;
-	HttpSession mocksession;
-	
-	public void setUp() {
-		request = mock(HttpServletRequest.class);
-		mocksession = mock(HttpSession.class);
-		
-		when(request.getSession(true)).thenReturn(mocksession);
-		when(request.getSession()).thenReturn(mocksession);
-		
-		// Store our session value so we can return it again
-		Mockito.doAnswer(new Answer<Void>() {
-		    public Void answer(InvocationOnMock invocation) {
-		      Object[] args = invocation.getArguments();
-		      //System.out.println("called with arguments: " + Arrays.toString(args));
-		      if (args[0].equals("PayloadStack")) {
-		    	  payloadStack = (Stack<SerialisablePayloadAndFieldName>)args[1];
-		      }
-		      return null;
-		    }
-		}).when(mocksession).setAttribute(anyString(), anyObject());
-		
-		Mockito.doAnswer(new Answer<Object>() {
-		    public Object answer(InvocationOnMock invocation) {
-		      Object[] args = invocation.getArguments();
-		      //System.out.println("get attribute called with arguments: " + Arrays.toString(args));
-		      if (args[0].equals("PayloadStack")) {
-		    	  return payloadStack;
-		      }
-		      return null;
-		    }
-		}).when(mocksession).getAttribute(anyString());
-	}
+public class PayloadStackManagerTest extends AbstractServletTests {
 	
 	@Test
 	public void testPushNewPayloadToStack() {
 		
-		setUp();
+		setUpMocks();
 		// Inject a request body
 		//PrintWriter writer = new PrintWriter("somefile.txt");
         //when(response.getWriter()).thenReturn(writer);
@@ -96,36 +64,101 @@ public class PayloadStackManagerTest {
 		assertEquals("DocumentId", tempPayload1.getFieldDefinitions().get("DocumentId").getName());
 	}
 	
-	/*
 	@Test
 	public void testSaveAndPopPayload() {
-		saveAndPopPayload(Payload payload, HttpServletRequest request);
+		
+		// First we need to push a couple of payloads onto the stack
+		setUpMocks();
+		String name = "ClinicalDocument";
+		String packg = "uk.nhs.interoperability.payloads.toc_edischarge_draftB";
+		Payload doc = PayloadStackManager.pushNewPayloadToStack(request, true, name, packg, null);
+		String name2 = "PersonUniversal";
+		String packg2 = "uk.nhs.interoperability.payloads.templates";
+		Payload doc2 = PayloadStackManager.pushNewPayloadToStack(request, false, name2, packg2, "Authenticator");
+		
+		assertEquals(2, payloadStack.size());
+		
+		// Add a field to save
+		PersonUniversal newDoc2 = new PersonUniversal();
+		newDoc2.setOrgName("ChildPayloadOrg");
+		
+		// Now call our method to save the updated child payload
+		PayloadStackManager.saveAndPopPayload(newDoc2, request);
+		assertEquals(1, payloadStack.size());
+		
+		Payload savedPayload = payloadStack.peek().getPayload();
+		assertEquals("ChildPayloadOrg", ((ClinicalDocument)savedPayload).getAuthenticator().getOrgName());
 	}
-	*/
 	
-	/*
+	@Test
+	public void testSaveAndPopPayloadTwoLayers() {
+		
+		// First we need to push three payloads onto the stack
+		setUpMocks();
+		String name = "ClinicalDocument";
+		String packg = "uk.nhs.interoperability.payloads.toc_edischarge_draftB";
+		Payload doc = PayloadStackManager.pushNewPayloadToStack(request, true, name, packg, null);
+		String name2 = "PersonUniversal";
+		String packg2 = "uk.nhs.interoperability.payloads.templates";
+		Payload doc2 = PayloadStackManager.pushNewPayloadToStack(request, false, name2, packg2, "Authenticator");
+		String name3 = "PersonName";
+		String packg3 = "uk.nhs.interoperability.payloads.commontypes";
+		Payload doc3 = PayloadStackManager.pushNewPayloadToStack(request, false, name3, packg3, "PersonName");
+		
+		assertEquals(3, payloadStack.size());
+		
+		// Add a field to save
+		PersonName personName = new PersonName("Mr", "Adam", "Hatherly");
+		
+		// Now call our method to save the updated child payload
+		Payload poppedPayload = PayloadStackManager.saveAndPopPayload(personName, request);
+		assertEquals(2, payloadStack.size());
+		
+		// And again to pop back up to the top level payload
+		PayloadStackManager.saveAndPopPayload(poppedPayload, request);
+		assertEquals(1, payloadStack.size());
+		
+		Payload savedPayload = payloadStack.peek().getPayload();
+		assertEquals("Hatherly", ((ClinicalDocument)savedPayload).getAuthenticator().getPersonName().getFamilyName());
+		
+		//System.out.println("Final payload: " + savedPayload.toString());
+	}
+	
 	@Test
 	public void testSavePayload() {
-		savePayload(Payload payload, HttpServletRequest request);
-	}
-	*/
-	
-	/*
-	@Test
-	public void testStacksAreInSession() {
-		stacksAreInSession(HttpServletRequest request);
-	}
-	*/
-	/*
-	@Test
-	public void testSaveStacksToSession() {
-		saveStacksToSession(HttpServletRequest request, 
-				Stack<SerialisablePayloadAndFieldName> payloadStack);
+		setUpMocks();
+
+		// We have to have a payload in the stack before we can save it
+		String name = "ClinicalDocument";
+		String packg = "uk.nhs.interoperability.payloads.toc_edischarge_draftB";
+		// Call our method
+		PayloadStackManager.pushNewPayloadToStack(request, true, name, packg, null);
+
+		ClinicalDocument doc = new ClinicalDocument();
+		doc.setDocumentId("1234");
+		PayloadStackManager.savePayload(doc, request, "parentField");
+		Payload savedPayload = payloadStack.peek().getPayload();
+		assertEquals(doc.toString(), savedPayload.toString());
 	}
 	
 	@Test
-	public void testLoadPayloadStackFromSession() {
-		loadPayloadStackFromSession(HttpServletRequest request);
-	}
-	*/
+	public void testSavePayloadWithChildPayload() {
+		setUpMocks();
+
+		// We have to have a payload in the stack before we can save it
+		String name = "ClinicalDocument";
+		String packg = "uk.nhs.interoperability.payloads.toc_edischarge_draftB";
+		// Call our method
+		PayloadStackManager.pushNewPayloadToStack(request, true, name, packg, null);
+
+		ClinicalDocument doc = new ClinicalDocument();
+		doc.setDocumentId("1234");
+		PersonUniversal authenticator = new PersonUniversal();
+		authenticator.setOrgName("OrgName");
+		doc.setAuthenticator(authenticator);
+		PayloadStackManager.savePayload(doc, request, "Authenticator");
+		Payload savedPayload = payloadStack.peek().getPayload();
+		//assertEquals(doc.toString(), savedPayload.toString());
+		assertEquals(doc.toString(), savedPayload.toString());
+	}	
 }

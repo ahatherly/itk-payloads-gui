@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import uk.nhs.interoperability.payloads.DomainObjectFactory;
 import uk.nhs.interoperability.payloads.Payload;
 import uk.nhs.interoperability.payloads.gui.model.SerialisablePayloadAndFieldName;
+import uk.nhs.interoperability.payloads.metadata.Field;
 
 public class PayloadStackManager {
 	public static Payload pushNewPayloadToStack(HttpServletRequest request,
@@ -56,15 +57,28 @@ public class PayloadStackManager {
 			// Pop our child payload off the stack and keep a note of the field
 			// from the parent to save it into
 			SerialisablePayloadAndFieldName payloadFromTopOfStack = payloadStack.pop();
-			String parentFieldName = payloadFromTopOfStack.getFieldName();
 			
 			// Also pop the parent so we can modify it
 			SerialisablePayloadAndFieldName parentPayloadToUpdate
 					= payloadStack.pop();
 			
+			String parentFieldName = parentPayloadToUpdate.getFieldName();
+			
+			if (parentFieldName == null) {
+				System.out.println("ERROR SAVING PAYLOAD - Parent field name was null!");
+			}
+			
 			// Now add the new child payload into the parent in the relevant field
 			Payload parentPayload = parentPayloadToUpdate.getPayload();
-			parentPayload.setValue(parentFieldName, payload);
+			
+			Field parentFieldDefinition = parentPayload.getFieldDefinitions().get(parentFieldName);
+			if (parentFieldDefinition.getMaxOccurs() == 1) {
+				System.out.println("Saving SINGLE payload for field: " + parentFieldName);
+				parentPayload.setValue(parentFieldName, payload);
+			} else {
+				System.out.println("Saving MULTIVALUE payload for field: " + parentFieldName);
+				parentPayload.addMultivalue(parentFieldName, payload);
+			}
 			// And push the updated parent back onto the stack
 			SerialisablePayloadAndFieldName newParentPayload =
 					new SerialisablePayloadAndFieldName(parentPayload,
@@ -84,7 +98,7 @@ public class PayloadStackManager {
 	 * @param request
 	 * @return
 	 */
-	public static void savePayload(Payload payload, HttpServletRequest request) {
+	public static void savePayload(Payload payload, HttpServletRequest request, String parentFieldName) {
 		Stack<SerialisablePayloadAndFieldName> payloadStack;
 
 		if (!stacksAreInSession(request)) {
@@ -94,7 +108,7 @@ public class PayloadStackManager {
 			
 			// Pop our currently active payload off the stack
 			SerialisablePayloadAndFieldName payloadFromTopOfStack = payloadStack.pop();
-			String parentFieldName = payloadFromTopOfStack.getFieldName();
+			//String parentFieldName = payloadFromTopOfStack.getFieldName();
 						
 			// Push the updated payload back onto the stack
 			SerialisablePayloadAndFieldName newPayload =
@@ -123,5 +137,10 @@ public class PayloadStackManager {
 		HttpSession session = request.getSession(true);
 		// Load the stack from the session
 		return (Stack<SerialisablePayloadAndFieldName>)session.getAttribute("PayloadStack");
+	}
+	
+	public static Payload loadTopPayloadFromSession(HttpServletRequest request) {
+		Stack<SerialisablePayloadAndFieldName> stack = loadPayloadStackFromSession(request);
+		return stack.peek().getPayload();
 	}
 }

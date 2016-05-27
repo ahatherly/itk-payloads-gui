@@ -46,19 +46,22 @@ public class PayloadObjectSerialiser implements JsonSerializer<Payload> {
 		
 		for (String name : payload.getFieldDefinitions().keySet()) {
 			Field f = payload.getFieldDefinitions().get(name);
-			
+			Vocabulary vocabValues;
+			FieldDecorator fd;
 			// Don't include the fixed fields
 			switch(f.getTypeEnum()) {
 			case Fixed:
 				break;
-			case CodedValue:
-				FieldDecorator fd = new FieldDecorator(f);
-				Vocabulary vocabValues = Vocabularies.getVocab(f.getVocabulary());
-				fd.setVocabValues(vocabValues);
-				fields.add(fd);
-				break;
 			default:
-				fields.add(f);
+				if (f.getVocabulary() != null) {
+					// Normally this is coded values, but some strings also have vocabs...
+					fd = new FieldDecorator(f);
+					vocabValues = Vocabularies.getVocab(f.getVocabulary());
+					fd.setVocabValues(vocabValues);
+					fields.add(fd);
+				} else {
+					fields.add(f);
+				}
 				break;
 			}
 		}

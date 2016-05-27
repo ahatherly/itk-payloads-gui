@@ -25,6 +25,7 @@ public class SavePayloadServlet extends HttpServlet {
 			throws ServletException, IOException {
 		
 		System.out.println("**** Save Servlet ****: ");
+		String parentFieldName = null;
 		
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Payload.class, new PayloadObjectDeserialiser());
@@ -34,6 +35,7 @@ public class SavePayloadServlet extends HttpServlet {
 		if (request.getParameter("action") != null) {
 			if (request.getParameter("action").equals("push")) {
 				isPop = false;
+				parentFieldName = request.getParameter("parentFieldName");
 			}
 		}
 		if (isPop) {
@@ -59,11 +61,13 @@ public class SavePayloadServlet extends HttpServlet {
 			request.setAttribute("payload", newPayload);
 		} else {
 			// Save the payload - the payload servlet will push the new one on for us
-			PayloadStackManager.savePayload(payload, request);
+			PayloadStackManager.savePayload(payload, request, parentFieldName);
 		}
 		
 		RequestDispatcher rd=request.getRequestDispatcher("payload");
-		rd.forward(request, response);
+		if (rd != null) {
+			rd.forward(request, response);
+		}
 		//PrintWriter out = response.getWriter();
 		//out.append(PayloadSerialiser.serialise(payload, rootNodeName, namespaces));
 		//out.append("Done"); 
