@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 
 import uk.nhs.interoperability.payloads.DateValue;
 import uk.nhs.interoperability.payloads.Payload;
+import uk.nhs.interoperability.payloads.commontypes.Address;
 import uk.nhs.interoperability.payloads.templates.AuthorPersonUniversal;
 import uk.nhs.interoperability.payloads.templates.ChildPatientUniversal;
 import uk.nhs.interoperability.payloads.templates.PersonUniversal;
@@ -39,6 +40,19 @@ public class PayloadObjectSerialiserTest {
 	}
 	
 	@Test
+	public void testSerialisePayloadWithMultiValue() {
+		AuthorPersonUniversal doc = new AuthorPersonUniversal();
+		Address add1 = new Address();
+		add1.setPostcode("POSTCODE1");
+		Address add2 = new Address();
+		add2.setPostcode("POSTCODE2");
+		doc.addAddress(add1);
+		doc.addAddress(add2);
+		String json = serialise(doc);
+		System.out.println("Serialised payload: " + json);
+	}
+	
+	@Test
 	public void testRoundTripPayloadWithCodedValue() {
 		ClinicalDocument doc = new ClinicalDocument();
 		doc.setConfidentialityCode(x_BasicConfidentialityKind._Veryrestricted);
@@ -54,6 +68,7 @@ public class PayloadObjectSerialiserTest {
 		PersonUniversal authenticator = new PersonUniversal();
 		authenticator.setOrgName("OrgName");
 		doc.setAuthenticator(authenticator);
+		doc.setDocumentId("DOCID1234");
 		String json = serialise(doc);
 		ClinicalDocument deserialised = (ClinicalDocument)deserialise(json);
 		System.out.println("Round-tripped payload: " + deserialised.toString());
@@ -93,6 +108,8 @@ public class PayloadObjectSerialiserTest {
 	private String serialise(Payload doc) {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Payload.class, new PayloadObjectSerialiser());
+		gsonBuilder.registerTypeAdapter(Vocabulary.class, new VocabularySerialiser());
+		gsonBuilder.setExclusionStrategies(new PayloadObjectSerialiseExclusions());
 		Gson gson = gsonBuilder.create();
 		System.out.println("Serialising payload: " + doc.toString());
 		return gson.toJson(doc, Payload.class);
